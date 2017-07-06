@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <VSNode splits="0.05627222412971224 0.1378982118664219">
+        <HSNode splits="0.02813611206485612">
+            <VSNode splits="0.00703402801621403">
+                <CNode>
+                    <Component label="Class hierarchy">
+                        <Property id="pluginId" value="org.protege.editor.owl.OWLAssertedClassHierarchy"/>
+                    </Component>
+                    <Component label="Object property hierarchy">
+                        <Property id="pluginId" value="org.protege.editor.owl.OWLObjectPropertyTree"/>
+                    </Component>
+                    <Component label="Data property hierarchy">
+                        <Property id="pluginId" value="org.protege.editor.owl.OWLDataPropertyTree"/>
+                    </Component>
+                    <Component label="Individuals">
+                        <Property id="pluginId" value="org.protege.editor.owl.OWLIndividualsList"/>
+                    </Component>
+                </CNode>
+            </VSNode>
+        </HSNode>
+        <HSNode splits="0.015659361209088497">
+            <CNode>
+                <Component label="Inference Inspector">
+                    <Property id="pluginId" value="inference.inspector.EntailmentInspectorView"/>
+                </Component>
+            </CNode>
+        </HSNode>
+    </VSNode>
+</layout>

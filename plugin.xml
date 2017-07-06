@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin name="DL-Miner" version="0.1.0">
+   
+    <extension id="DLMinerView"
+              point="org.protege.editor.core.application.ViewComponent">
+      <label value="DL-Miner"/>
+      <class value="org.whatif.tools.view.DLMinerView"/>
+      <category value="@org.protege.ontologycategory"/>
+   </extension>
+    
+</plugin>
