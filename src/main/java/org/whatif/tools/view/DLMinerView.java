@@ -43,95 +43,69 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	private static final Logger log = Logger.getLogger(DLMinerView.class);
 
 	JPanel buttonpanel = null;
-	JPanel selectpanel = null;
+//	JPanel selectpanel = null;
 	JPanel axiompanel = null;
 	JScrollPane axiomscrollpanel = null;
 	JPanel buttselectpanel = null;
 
-	OWLEntitySelectorPanel selectentity = null;
-	OWLOntologySelectorPanel selectontology = null;
+//	OWLEntitySelectorPanel selectentity = null;
+//	OWLOntologySelectorPanel selectontology = null;
 
 	JButton button_bottom = null;
-	JButton button_top = null;
-	JButton button_star = null;
-	JButton button_diff = null;
 	JButton button_export = null;
 
-	WhatifAxiomTablePlain moduleaxioms = null;
+	WhatifAxiomTablePlain hypotheses = null;
 
 	@Override
 	protected void initialiseOWLView() throws Exception {
 		setLayout(new GridLayout(2, 1));
 
 		buttonpanel = new JPanel();
-		// buttonpanel.setBackground(Color.GREEN);
-		buttonpanel.setLayout(new GridLayout(1, 4));
+		buttonpanel.setLayout(new GridLayout(1, 2));
 		buttonpanel.setPreferredSize(new Dimension(100, 30));
 
-		selectpanel = new JPanel();
-		selectpanel.setLayout(new GridLayout(1, 2));
-		
-		
-		// selectpanel.setBackground(Color.YELLOW);
-
-		axiompanel = new JPanel(new GridLayout(1, 1));
-
-		// axiompanel.setAutoscrolls(true);
-		// axiompanel.setLayout(new BorderLayout());
-		// axiompanel.setBackground(Color.BLUE);
+//		selectpanel = new JPanel();
+//		selectpanel.setLayout(new GridLayout(1, 2));
 
 		buttselectpanel = new JPanel();
 		buttselectpanel.setLayout(new BorderLayout());
-		buttselectpanel.setPreferredSize(new Dimension(100, 300));
+		buttselectpanel.setPreferredSize(new Dimension(100, 30));
 
-		selectentity = new OWLEntitySelectorPanel(getOWLEditorKit(), true);
-		//selectentity.setPreferredSize(new Dimension(200, 400));
-		selectontology = new OWLOntologySelectorPanel(getOWLEditorKit());
-		selectontology.setSelection(getOWLModelManager().getActiveOntology());
-		button_bottom = new JButton("\u22A5");
+//		selectentity = new OWLEntitySelectorPanel(getOWLEditorKit(), true);
+//		selectontology = new OWLOntologySelectorPanel(getOWLEditorKit());
+//		selectontology.setSelection(getOWLModelManager().getActiveOntology());
+
+		button_bottom = new JButton("run");
 		button_bottom.setFont(new Font("Helvetica", Font.BOLD, 20));
-		button_top = new JButton("\u22A4");
-		button_top.setFont(new Font("Helvetica", Font.BOLD, 20));
-		button_star = new JButton("*");
-		button_star.setFont(new Font("Helvetica", Font.BOLD, 20));
-		button_diff = new JButton("ecco");
-		button_diff.setFont(new Font("Helvetica", Font.BOLD, 20));
 		button_export = new JButton("export");
 		button_export.setFont(new Font("Helvetica", Font.BOLD, 20));
 
-		moduleaxioms = new WhatifAxiomTablePlain(getOWLModelManager(), getOWLWorkspace().getOWLSelectionModel(),
-				getOWLEditorKit(), "ModuleAxioms");
-
-		axiomscrollpanel = new JScrollPane(moduleaxioms);
-
-		axiompanel.add(axiomscrollpanel);
-
 		buttonpanel.add(button_bottom);
-		buttonpanel.add(button_top);
-		buttonpanel.add(button_star);
-		//buttonpanel.add(button_diff);
 		buttonpanel.add(button_export);
 
-		selectpanel.add(selectontology);
-
-		selectpanel.add(selectentity);
-
-		moduleaxioms.setAxioms(new HashSet<>());
-		// axiomscrollpanel.add(moduleaxioms);
+//		selectpanel.add(selectontology);
+//		selectpanel.add(selectentity);
 
 		buttselectpanel.add(buttonpanel, BorderLayout.PAGE_START);
-		buttselectpanel.add(selectpanel, BorderLayout.CENTER);
-
-		add(buttselectpanel);
-		add(axiompanel);
+//		buttselectpanel.add(selectpanel, BorderLayout.CENTER);
 
 		button_bottom.addActionListener(this);
-		button_top.addActionListener(this);
-		button_star.addActionListener(this);
-		button_diff.addActionListener(this);
 		button_export.addActionListener(this);
 
-		log.info("Syntactic Module Extractor initialized");
+		axiompanel = new JPanel();
+		axiompanel.setLayout(new GridLayout(1, 1));
+		axiompanel.setPreferredSize(new Dimension(100, 500));
+
+		hypotheses = new WhatifAxiomTablePlain(getOWLModelManager(), getOWLWorkspace().getOWLSelectionModel(),
+				getOWLEditorKit(), "MinedAxioms");
+		hypotheses.setAxioms(new HashSet<>());
+		axiomscrollpanel = new JScrollPane(hypotheses);
+		axiompanel.add(axiomscrollpanel);
+
+		add(axiompanel);
+		add(buttselectpanel);
+
+		log.info("DL-Miner view initialized");
 
 	}
 
@@ -148,39 +122,33 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(button_bottom)) {
 
-			extractModule(ModuleType.BOT);
+			mineAxioms(ModuleType.BOT);
 
-		} else if (e.getSource().equals(button_top)) {
-			extractModule(ModuleType.TOP);
-		} else if (e.getSource().equals(button_star)) {
-			extractModule(ModuleType.STAR);
 		} else if (e.getSource().equals(button_export)) {
-			exportModule();
+			exportAxioms();
 		}
 
 	}
 
-	private void exportModule() {
+	private void exportAxioms() {
 		FileDialog fd = new FileDialog((Frame) SwingUtilities.getRoot(this), "Choose a file", FileDialog.SAVE);
-		// fd.setDirectory("C:\\");
-		// fd.setFile("*.xml");
 		fd.setVisible(true);
 		String filename = fd.getFile();
 		if (filename == null) {
-			JOptionPane.showMessageDialog(this, "Cancelled...");
+			JOptionPane.showMessageDialog(this, "Export is cancelled...");
 		} else {
-			WhatifUtils.p("Saving module to " + filename);
-			Set<OWLAxiom> selection = moduleaxioms.getAllAxioms();
+			WhatifUtils.p("Saving hypotheses to " + filename);
+			Set<OWLAxiom> selection = hypotheses.getAllAxioms();
 			if (selection.isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Empty module, aborting...");
+				JOptionPane.showMessageDialog(this, "Empty output, aborting...");
 			} else {
-				IRI moduleIRI = IRI.create("http://owl.cs.man.ac.uk/module_" + UUID.randomUUID().toString());
+				IRI moduleIRI = IRI.create("http://owl.cs.man.ac.uk/dlminer_" + UUID.randomUUID().toString());
 				try {
 					OWLOntology o = OWLManager.createOWLOntologyManager().createOntology(selection, moduleIRI);
 					OutputStream os = new FileOutputStream(new File(fd.getDirectory(), filename));
 					o.getOWLOntologyManager().saveOntology(o, os);
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(this, "Couldnt save ontology, see log..");
+					JOptionPane.showMessageDialog(this, "Couldn't save ontology, see log..");
 					e.printStackTrace();
 				}
 			}
@@ -188,31 +156,31 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 	}
 
-	private void extractModule(ModuleType type) {
+	private void mineAxioms(ModuleType type) {
 
-		OWLOntology o = null;// ;
+		OWLOntology o = null;
 		OWLOntologyManager mgr = OWLManager.createOWLOntologyManager();
 		try {
-			o = mgr.createOntology(selectontology.getSelectedOntology().getAxioms());
+//			o = mgr.createOntology(selectontology.getSelectedOntology().getAxioms());
+			o = mgr.createOntology(getOWLModelManager().getActiveOntology().getAxioms());
 		} catch (OWLOntologyCreationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		SyntacticLocalityModuleExtractor sme = new SyntacticLocalityModuleExtractor(mgr, o, type);
 
 		try {
-			Set<OWLAxiom> mod = sme.extract(selectentity.getSelectedObjects());
+//			Set<OWLAxiom> mod = sme.extract(selectentity.getSelectedObjects());
+			Set<OWLAxiom> mod = sme.extract(o.getSignature());
 			Set<OWLAxiom> mod_axioms = new HashSet<OWLAxiom>();
 			for (OWLAxiom ax : mod) {
 				if (ax.isLogicalAxiom()) {
 					mod_axioms.add(ax);
 				}
 			}
-			moduleaxioms.setAxioms(mod_axioms);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			hypotheses.setAxioms(mod_axioms);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
