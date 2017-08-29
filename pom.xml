@@ -25,12 +25,12 @@
 	</licenses>
 
 
-	<repositories>
+	<!--<repositories>
 		<repository>
 			<id>dlminer-repo</id>
 			<url>file:///${project.basedir}/repo</url>
 		</repository>
-	</repositories>
+	</repositories>-->
 
 
 
