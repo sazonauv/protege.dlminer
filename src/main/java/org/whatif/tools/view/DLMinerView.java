@@ -84,15 +84,13 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		minPrecisionField = new JTextField("0.9", defTextFieldSize);
 		paramPanel.add(minPrecisionField);
 
+		JLabel  emptyLabel = new JLabel(" ", JLabel.LEFT);
+		paramPanel.add(emptyLabel);
 		buttonRun = new JButton("run");
 		buttonRun.setFont(new Font("Helvetica", Font.BOLD, 20));
-		buttonExport = new JButton("export");
-		buttonExport.setFont(new Font("Helvetica", Font.BOLD, 20));
 		buttonRun.addActionListener(this);
-		buttonExport.addActionListener(this);
 
 		paramPanel.add(buttonRun);
-		paramPanel.add(buttonExport);
 
 //		selectentity = new OWLEntitySelectorPanel(getOWLEditorKit(), true);
 
@@ -100,6 +98,9 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	}
 
 	private void createHypothesesView() {
+		JPanel axiomButtonPanel = new JPanel();
+		axiomButtonPanel.setLayout(new GridLayout(2, 1));
+
 		JPanel axiomPanel = new JPanel();
 		axiomPanel.setLayout(new GridLayout(1, 1));
 		axiomPanel.setPreferredSize(new Dimension(1300, 500));
@@ -110,6 +111,13 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 		JScrollPane axiomScrollPanel = new JScrollPane(hypothesesTable);
 		axiomPanel.add(axiomScrollPanel);
+		axiomButtonPanel.add(axiomPanel);
+
+		buttonExport = new JButton("export");
+		buttonExport.setFont(new Font("Helvetica", Font.BOLD, 20));
+		buttonExport.addActionListener(this);
+
+		axiomButtonPanel.add(buttonExport);
 
 		add(axiomPanel);
 	}
