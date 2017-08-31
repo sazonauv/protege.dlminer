@@ -98,12 +98,9 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	}
 
 	private void createHypothesesView() {
-		JPanel axiomButtonPanel = new JPanel();
-		axiomButtonPanel.setLayout(new GridLayout(2, 1));
-
 		JPanel axiomPanel = new JPanel();
 		axiomPanel.setLayout(new GridLayout(1, 1));
-		axiomPanel.setPreferredSize(new Dimension(1300, 500));
+		axiomPanel.setPreferredSize(new Dimension(1300, 400));
 
 		hypothesesTable = new WhatifAxiomTablePlain(getOWLModelManager(), getOWLWorkspace().getOWLSelectionModel(),
 				getOWLEditorKit(), "Hypotheses");
@@ -111,15 +108,14 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 		JScrollPane axiomScrollPanel = new JScrollPane(hypothesesTable);
 		axiomPanel.add(axiomScrollPanel);
-		axiomButtonPanel.add(axiomPanel);
 
 		buttonExport = new JButton("export");
 		buttonExport.setFont(new Font("Helvetica", Font.BOLD, 20));
+		buttonExport.setPreferredSize(new Dimension(200, 30));
 		buttonExport.addActionListener(this);
 
-		axiomButtonPanel.add(buttonExport);
-
 		add(axiomPanel);
+		add(buttonExport);
 	}
 
 
@@ -135,7 +131,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(buttonRun)) {
-			mineHypotheses(ModuleType.BOT);
+			mineHypotheses();
 		} else if (e.getSource().equals(buttonExport)) {
 			exportHypotheses();
 		}
@@ -169,7 +165,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 	}
 
-	private void mineHypotheses(ModuleType type) {
+	private void mineHypotheses() {
 
 		OWLOntology ontology = getOWLModelManager().getActiveOntology();
 		DLMinerInput input = new DLMinerInput(ontology);
