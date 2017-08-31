@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.swing.*;
+import javax.swing.table.TableColumn;
 
 import io.dlminer.learn.Hypothesis;
 import io.dlminer.main.DLMiner;
@@ -23,6 +24,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.whatif.tools.util.WhatifAxiomTable;
 import org.whatif.tools.util.WhatifAxiomTablePlain;
 import org.whatif.tools.util.WhatifUtils;
 
@@ -102,9 +104,19 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		axiomPanel.setLayout(new GridLayout(1, 1));
 		axiomPanel.setPreferredSize(new Dimension(1300, 400));
 
+
 		hypothesesTable = new WhatifAxiomTablePlain(getOWLModelManager(), getOWLWorkspace().getOWLSelectionModel(),
-				getOWLEditorKit(), "Hypotheses");
+				getOWLEditorKit(), "hypotheses");
 		hypothesesTable.setAxioms(new HashSet<>());
+		TableColumn hypoColumn = hypothesesTable.getColumn("OWL");
+
+		JLabel hypoLabel = new JLabel("hypotheses");
+		hypoColumn.setHeaderValue(hypoLabel);
+
+		TableColumn supportColumn = new TableColumn();
+		JLabel supLabel = new JLabel("support");
+		supportColumn.setHeaderValue(supLabel);
+		hypothesesTable.addColumn(supportColumn);
 
 		JScrollPane axiomScrollPanel = new JScrollPane(hypothesesTable);
 		axiomPanel.add(axiomScrollPanel);
