@@ -1082,7 +1082,7 @@ public class EntailmentInspectorView extends AbstractOWLSelectionViewComponent i
 
 		bt_diff.setIcon(Icons.getIcon("diff.png"));
 		bt_diff.setPreferredSize(new Dimension(32, 32));
-		bt_diff.setToolTipText("Diff - Analyse impact of specific axioms");
+		bt_diff.setToolTipText("Diff - Analyse impact of specific hypotheses");
 		bt_diff.repaint();
 
 		bt_history.addActionListener(main_button_actionlistener);
@@ -1203,7 +1203,7 @@ public class EntailmentInspectorView extends AbstractOWLSelectionViewComponent i
 		sb.append("<h1>Inference Report</h1>" + "<br />");
 		sb.append("<b>Ontology: </b>" + getO().getOntologyID().getOntologyIRI().toString() + "<br />");
 		sb.append("<b>Date: </b>" + getDate() + "<br />");
-		sb.append("<b>Number of asserted logical axioms: </b>" + getO().getLogicalAxiomCount() + "<br />");
+		sb.append("<b>Number of asserted logical hypotheses: </b>" + getO().getLogicalAxiomCount() + "<br />");
 		sb.append("</html>");
 		txtArea.setText(sb.toString());
 		panel_report.removeAll();
@@ -1585,7 +1585,7 @@ public class EntailmentInspectorView extends AbstractOWLSelectionViewComponent i
 	private Set<WhatifConsequence> getAdditionConsequences(Set<OWLAxiom> axioms, Set<OWLAxiom> assertions) {
 		WhatifUtils.p("getAdditionConsequences()");
 		/*
-		 * for (OWLAxiom ax : axioms) { WhatifUtils.p(ax); }
+		 * for (OWLAxiom ax : hypotheses) { WhatifUtils.p(ax); }
 		 */
 		Set<WhatifConsequence> cons = new HashSet<WhatifConsequence>();
 		for (OWLAxiom ax : axioms) {

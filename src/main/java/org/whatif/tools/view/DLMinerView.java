@@ -1,17 +1,5 @@
 package org.whatif.tools.view;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.*;
-import java.util.List;
-
-import javax.swing.*;
-import javax.swing.table.TableColumn;
-
 import io.dlminer.learn.AxiomConfig;
 import io.dlminer.learn.Hypothesis;
 import io.dlminer.main.DLMiner;
@@ -23,11 +11,16 @@ import org.protege.editor.owl.ui.selector.OWLEntitySelectorPanel;
 import org.protege.editor.owl.ui.view.AbstractOWLViewComponent;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-import org.whatif.tools.util.WhatifAxiomTable;
-import org.whatif.tools.util.WhatifAxiomTablePlain;
-import org.whatif.tools.util.WhatifUtils;
 
-import uk.ac.manchester.cs.owlapi.modularity.ModuleType;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.List;
 
 public class DLMinerView extends AbstractOWLViewComponent implements ActionListener {
 	private static final long serialVersionUID = -4515710047558710080L;
@@ -47,7 +40,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	JButton buttonRemove = null;
 
 	// hypotheses view
-	WhatifAxiomTablePlain hypothesesTable = null;
+	OWLHypothesesView hypothesesTable = null;
 
 	OWLEntitySelectorPanel entityPanel = null;
 
@@ -58,6 +51,8 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		createParametersView();
 
 		createHypothesesView();
+
+		createButtonsView();
 
 		log.info("DL-Miner view is initialized");
 
@@ -78,7 +73,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 		JLabel  maxConceptLengthLabel = new JLabel("Max expression length: ", JLabel.LEFT);
 		paramPanel.add(maxConceptLengthLabel);
-		maxConceptLengthField = new JTextField("4", defTextFieldSize);
+		maxConceptLengthField = new JTextField("2", defTextFieldSize);
 		paramPanel.add(maxConceptLengthField);
 
 		JLabel  minSupportLabel = new JLabel("Min support: ", JLabel.LEFT);
@@ -111,23 +106,20 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		JPanel axiomPanel = new JPanel();
 		axiomPanel.setLayout(new GridLayout(1, 1));
 		axiomPanel.setPreferredSize(new Dimension(900, 400));
-
-
-		hypothesesTable = new WhatifAxiomTablePlain(getOWLModelManager(), getOWLWorkspace().getOWLSelectionModel(),
-				getOWLEditorKit(), "hypotheses");
-		hypothesesTable.setAxioms(new HashSet<>());
-		TableColumn hypoColumn = hypothesesTable.getColumn("OWL");
-
-		JLabel hypoLabel = new JLabel("hypotheses");
-		hypoColumn.setHeaderValue(hypoLabel);
-
-		TableColumn supportColumn = new TableColumn();
-		JLabel supLabel = new JLabel("support");
-		supportColumn.setHeaderValue(supLabel);
-		hypothesesTable.addColumn(supportColumn);
-
+		hypothesesTable = new OWLHypothesesView(getOWLModelManager(),
+				getOWLWorkspace().getOWLSelectionModel(),
+				getOWLEditorKit());
+		hypothesesTable.setHypotheses(new HashSet<>());
 		JScrollPane axiomScrollPanel = new JScrollPane(hypothesesTable);
 		axiomPanel.add(axiomScrollPanel);
+		add(axiomPanel);
+	}
+
+
+	private void createButtonsView() {
+		JPanel buttonsPanel = new JPanel();
+		buttonsPanel.setLayout(new GridLayout(1, 3));
+		buttonsPanel.setPreferredSize(new Dimension(600, 30));
 
 		buttonAdd = new JButton("add");
 		buttonAdd.setFont(new Font("Helvetica", Font.BOLD, 20));
@@ -144,12 +136,13 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		buttonExport.setPreferredSize(new Dimension(200, 30));
 		buttonExport.addActionListener(this);
 
+		buttonsPanel.add(buttonAdd);
+		buttonsPanel.add(buttonRemove);
+		buttonsPanel.add(buttonExport);
 
-		add(axiomPanel);
-		add(buttonAdd);
-		add(buttonRemove);
-		add(buttonExport);
+		add(buttonsPanel);
 	}
+
 
 
 	protected ActionListener getThis() {
@@ -178,7 +171,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 
 	private void addHypotheses() {
-		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAllAxioms();
+		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAxioms();
 		OWLModelManager manager = getOWLModelManager();
 		OWLOntology ontology = manager.getActiveOntology();
 		List<OWLOntologyChange> changes = new ArrayList<>();
@@ -190,7 +183,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	}
 
 	private void removeHypotheses() {
-		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAllAxioms();
+		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAxioms();
 		OWLModelManager manager = getOWLModelManager();
 		OWLOntology ontology = manager.getActiveOntology();
 		List<OWLOntologyChange> changes = new ArrayList<>();
@@ -208,7 +201,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		if (filename == null) {
 			JOptionPane.showMessageDialog(this, "The export is cancelled");
 		} else {
-			Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAllAxioms();
+			Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAxioms();
 			if (selectedHypotheses.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Empty output, aborting");
 			} else {
@@ -263,14 +256,9 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		}
 
 		final Collection<Hypothesis> hypotheses = miner.getOutput().getHypotheses();
-		Set<OWLAxiom> axioms = new HashSet<>();
-		for (Hypothesis h : hypotheses) {
-			axioms.addAll(h.axioms);
-		}
+		hypothesesTable.setHypotheses(hypotheses);
 
-		hypothesesTable.setAxioms(axioms);
-
-		log.info("DL-Miner has mined " + axioms.size() + " hypotheses");
+		log.info("DL-Miner has mined " + hypotheses.size() + " hypotheses");
 
 	}
 
