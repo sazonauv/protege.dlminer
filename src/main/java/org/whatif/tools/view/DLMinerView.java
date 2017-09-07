@@ -6,24 +6,23 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
+import io.dlminer.learn.AxiomConfig;
 import io.dlminer.learn.Hypothesis;
 import io.dlminer.main.DLMiner;
 import io.dlminer.main.DLMinerInput;
 import io.dlminer.refine.OperatorConfig;
 import org.apache.log4j.Logger;
+import org.protege.editor.owl.model.OWLModelManager;
+import org.protege.editor.owl.ui.selector.OWLEntitySelectorPanel;
 import org.protege.editor.owl.ui.view.AbstractOWLViewComponent;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.*;
 import org.whatif.tools.util.WhatifAxiomTable;
 import org.whatif.tools.util.WhatifAxiomTablePlain;
 import org.whatif.tools.util.WhatifUtils;
@@ -44,9 +43,13 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	// buttons
 	JButton buttonRun = null;
 	JButton buttonExport = null;
+	JButton buttonAdd = null;
+	JButton buttonRemove = null;
 
 	// hypotheses view
 	WhatifAxiomTablePlain hypothesesTable = null;
+
+	OWLEntitySelectorPanel entityPanel = null;
 
 	@Override
 	protected void initialiseOWLView() throws Exception {
@@ -61,6 +64,8 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	}
 
 	private void createParametersView() {
+		JPanel inputPanel = new JPanel();
+
 		JPanel paramPanel = new JPanel();
 		paramPanel.setLayout(new GridLayout(5, 2));
 
@@ -93,16 +98,19 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		buttonRun.addActionListener(this);
 
 		paramPanel.add(buttonRun);
+		inputPanel.add(paramPanel);
 
-//		selectentity = new OWLEntitySelectorPanel(getOWLEditorKit(), true);
+		entityPanel = new OWLEntitySelectorPanel(getOWLEditorKit(), true);
+		entityPanel.setPreferredSize(new Dimension(500, 300));
+		inputPanel.add(entityPanel);
 
-		add(paramPanel);
+		add(inputPanel);
 	}
 
 	private void createHypothesesView() {
 		JPanel axiomPanel = new JPanel();
 		axiomPanel.setLayout(new GridLayout(1, 1));
-		axiomPanel.setPreferredSize(new Dimension(1300, 400));
+		axiomPanel.setPreferredSize(new Dimension(900, 400));
 
 
 		hypothesesTable = new WhatifAxiomTablePlain(getOWLModelManager(), getOWLWorkspace().getOWLSelectionModel(),
@@ -121,12 +129,25 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		JScrollPane axiomScrollPanel = new JScrollPane(hypothesesTable);
 		axiomPanel.add(axiomScrollPanel);
 
+		buttonAdd = new JButton("add");
+		buttonAdd.setFont(new Font("Helvetica", Font.BOLD, 20));
+		buttonAdd.setPreferredSize(new Dimension(200, 30));
+		buttonAdd.addActionListener(this);
+
+		buttonRemove = new JButton("remove");
+		buttonRemove.setFont(new Font("Helvetica", Font.BOLD, 20));
+		buttonRemove.setPreferredSize(new Dimension(200, 30));
+		buttonRemove.addActionListener(this);
+
 		buttonExport = new JButton("export");
 		buttonExport.setFont(new Font("Helvetica", Font.BOLD, 20));
 		buttonExport.setPreferredSize(new Dimension(200, 30));
 		buttonExport.addActionListener(this);
 
+
 		add(axiomPanel);
+		add(buttonAdd);
+		add(buttonRemove);
 		add(buttonExport);
 	}
 
@@ -146,8 +167,38 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 			mineHypotheses();
 		} else if (e.getSource().equals(buttonExport)) {
 			exportHypotheses();
+		} else if (e.getSource().equals(buttonAdd)) {
+			addHypotheses();
+		} else if (e.getSource().equals(buttonRemove)) {
+			removeHypotheses();
 		}
 
+	}
+
+
+
+	private void addHypotheses() {
+		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAllAxioms();
+		OWLModelManager manager = getOWLModelManager();
+		OWLOntology ontology = manager.getActiveOntology();
+		List<OWLOntologyChange> changes = new ArrayList<>();
+		for (OWLAxiom axiom : selectedHypotheses) {
+			changes.add(new AddAxiom(ontology, axiom));
+		}
+		manager.applyChanges(changes);
+		manager.refreshRenderer();
+	}
+
+	private void removeHypotheses() {
+		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAllAxioms();
+		OWLModelManager manager = getOWLModelManager();
+		OWLOntology ontology = manager.getActiveOntology();
+		List<OWLOntologyChange> changes = new ArrayList<>();
+		for (OWLAxiom axiom : selectedHypotheses) {
+			changes.add(new RemoveAxiom(ontology, axiom));
+		}
+		manager.applyChanges(changes);
+		manager.refreshRenderer();
 	}
 
 	private void exportHypotheses() {
@@ -155,11 +206,11 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		fd.setVisible(true);
 		String filename = fd.getFile();
 		if (filename == null) {
-			JOptionPane.showMessageDialog(this, "The export is cancelled...");
+			JOptionPane.showMessageDialog(this, "The export is cancelled");
 		} else {
 			Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAllAxioms();
 			if (selectedHypotheses.isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Empty output, aborting...");
+				JOptionPane.showMessageDialog(this, "Empty output, aborting");
 			} else {
 				IRI moduleIRI = IRI.create("http://owl.cs.man.ac.uk/dlminer_" + UUID.randomUUID().toString());
 				try {
@@ -169,7 +220,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 					log.info(selectedHypotheses.size()
 							+ " selected hypotheses are successfully exported to " + filename);
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(this, "Cannot export hypotheses, see log...");
+					JOptionPane.showMessageDialog(this, "Cannot export hypotheses, see log");
 					e.printStackTrace();
 				}
 			}
@@ -188,12 +239,18 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		Integer minSupport = Integer.parseInt(minSupportField.getText());
 
 		input.setMaxHypothesesNumber(hypothesesNumber);
-		input.setMinPrecision(minPrecision);
 
 		// language bias
-		OperatorConfig config = input.getConfig();
-		config.maxLength = maxConceptLength;
-		config.minSupport = minSupport;
+		OperatorConfig operatorConfig = input.getOperatorConfig();
+		operatorConfig.maxLength = maxConceptLength;
+		operatorConfig.minSupport = minSupport;
+
+		AxiomConfig axiomConfig = input.getAxiomConfig();
+		axiomConfig.minPrecision = minPrecision;
+		Set<OWLEntity> selectedEntities = entityPanel.getSelectedObjects();
+		if (selectedEntities != null && !selectedEntities.isEmpty()) {
+			axiomConfig.seedEntities = selectedEntities;
+		}
 
 		// run DL-Miner
 		DLMiner miner = new DLMiner(input);
