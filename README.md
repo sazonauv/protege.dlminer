@@ -1,4 +1,4 @@
-# inference-inspector
-Plugin for Protégé 5 (RC2) for making consequences to modelling actions explicit.
+# DL-Miner
+A plugin for Protégé 5 (ontology editor) providing a GUI for DL-Miner - an algorithm for mining schema-level ontological knowledge (TBox axioms) from graph data (ABox facts). 
 
-![alt tag](http://owl.cs.manchester.ac.uk/wp-content/uploads/2016/05/inference_inspector.png)
+![alt tag](http://www.cs.man.ac.uk/~sazonauv/dlminer-plugin.png)
