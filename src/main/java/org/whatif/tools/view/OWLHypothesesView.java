@@ -131,8 +131,8 @@ public class OWLHypothesesView extends JTable {
             TableColumn idColumn = model.getColumn(model.getColumnIndex(ID.getName()));
             idColumn.setCellRenderer(new OWLHypothesesView.LineWrapCellRenderer());
             idColumn.setResizable(true);
-            idColumn.setMinWidth(30);
-            idColumn.setMaxWidth(40);
+            idColumn.setMinWidth(40);
+            idColumn.setMaxWidth(70);
 
             TableColumn hypoColumn = model.getColumn(model.getColumnIndex(HYPOTHESES.getName()));
             hypoColumn.setCellRenderer(new OWLHypothesesView.AxiomListItemRenderer());
@@ -142,25 +142,25 @@ public class OWLHypothesesView extends JTable {
             TableColumn supColumn = model.getColumn(model.getColumnIndex(SUPPORT.getName()));
             supColumn.setCellRenderer(new OWLHypothesesView.LineWrapCellRenderer());
             supColumn.setResizable(true);
-            supColumn.setMinWidth(30);
-            supColumn.setMaxWidth(40);
+            supColumn.setMinWidth(50);
+            supColumn.setMaxWidth(70);
 
             TableColumn asmColumn = model.getColumn(model.getColumnIndex(ASSUMPTION.getName()));
             asmColumn.setCellRenderer(new OWLHypothesesView.LineWrapCellRenderer());
             asmColumn.setResizable(true);
-            asmColumn.setMinWidth(30);
-            asmColumn.setMaxWidth(40);
+            asmColumn.setMinWidth(70);
+            asmColumn.setMaxWidth(80);
 
             TableColumn confColumn = model.getColumn(model.getColumnIndex(CONFIDENCE.getName()));
             confColumn.setCellRenderer(new OWLHypothesesView.LineWrapCellRenderer());
             confColumn.setResizable(true);
-            confColumn.setMinWidth(30);
-            confColumn.setMaxWidth(40);
+            confColumn.setMinWidth(70);
+            confColumn.setMaxWidth(80);
 
             TableColumn checkColumn = model.getColumn(model.getColumnIndex(CHECK.getName()));
             checkColumn.setCellRenderer(new OWLHypothesesView.AxiomCheckRenderer());
-            checkColumn.setMinWidth(30);
-            checkColumn.setMaxWidth(40);
+            checkColumn.setMinWidth(50);
+            checkColumn.setMaxWidth(60);
 
 
             revalidate();

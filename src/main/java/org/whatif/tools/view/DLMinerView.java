@@ -61,8 +61,23 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	private void createParametersView() {
 		JPanel inputPanel = new JPanel();
 
+		JPanel step123Panel = new JPanel();
+        step123Panel.setLayout(new GridLayout(2, 3));
+
+        JLabel  chooseParamsLabel= new JLabel("Step 1: Choose parameters", JLabel.LEFT);
+        chooseParamsLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
+        step123Panel.add(chooseParamsLabel);
+
+        JLabel  chooseFocusLabel= new JLabel("Step 2: Choose focus terms", JLabel.LEFT);
+        chooseFocusLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
+        step123Panel.add(chooseFocusLabel);
+
+        JLabel  runLabel= new JLabel("Step 3: Run DL-Miner", JLabel.LEFT);
+        runLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
+        step123Panel.add(runLabel);
+
 		JPanel paramPanel = new JPanel();
-		paramPanel.setLayout(new GridLayout(5, 2));
+		paramPanel.setLayout(new GridLayout(4, 2));
 
 		final int defTextFieldSize = 7;
 
@@ -86,18 +101,21 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		minPrecisionField = new JTextField("0.9", defTextFieldSize);
 		paramPanel.add(minPrecisionField);
 
-		JLabel  emptyLabel = new JLabel(" ", JLabel.LEFT);
-		paramPanel.add(emptyLabel);
-		buttonRun = new JButton("run");
-		buttonRun.setFont(new Font("Helvetica", Font.BOLD, 20));
-		buttonRun.addActionListener(this);
-
-		paramPanel.add(buttonRun);
-		inputPanel.add(paramPanel);
+        step123Panel.add(paramPanel);
 
 		entityPanel = new OWLEntitySelectorPanel(getOWLEditorKit(), true);
 		entityPanel.setPreferredSize(new Dimension(500, 300));
-		inputPanel.add(entityPanel);
+
+        step123Panel.add(entityPanel);
+
+
+        buttonRun = new JButton("run");
+        buttonRun.setFont(new Font("Helvetica", Font.BOLD, 20));
+        buttonRun.addActionListener(this);
+
+        step123Panel.add(buttonRun);
+
+        inputPanel.add(step123Panel);
 
 		add(inputPanel);
 	}
@@ -105,7 +123,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	private void createHypothesesView() {
 		JPanel axiomPanel = new JPanel();
 		axiomPanel.setLayout(new GridLayout(1, 1));
-		axiomPanel.setPreferredSize(new Dimension(900, 400));
+		axiomPanel.setPreferredSize(new Dimension(1000, 400));
 		hypothesesTable = new OWLHypothesesView(getOWLModelManager(),
 				getOWLWorkspace().getOWLSelectionModel(),
 				getOWLEditorKit());
