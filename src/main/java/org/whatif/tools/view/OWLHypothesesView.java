@@ -32,7 +32,7 @@ public class OWLHypothesesView extends JTable {
         SUPPORT("Support"),
         ASSUMPTION("Assumption"),
         CONFIDENCE("Confidence"),
-        CHECK("Accept");
+        CHECK("Select");
 
         private String name;
 

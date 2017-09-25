@@ -162,6 +162,8 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		JScrollPane axiomScrollPanel = new JScrollPane(hypothesesTable);
 		axiomPanel.add(axiomScrollPanel);
 
+
+
 		JLabel  addLabel = new JLabel("Step 5: Add or save hypotheses", JLabel.LEFT);
 		addLabel.setFont(boldFont);
 
@@ -180,6 +182,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		buttonExport.setMinimumSize(new Dimension(200, 50));
 		buttonExport.addActionListener(this);
 
+
 		JLabel checkAllLabel = new JLabel("Select all", JLabel.LEFT);
 		checkAllLabel.setFont(boldFont);
 
@@ -190,29 +193,32 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		layout.setHorizontalGroup(
 				layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-							.addComponent(hypoLabel)
+							.addGroup(layout.createSequentialGroup()
+									.addComponent(hypoLabel)
+									.addGap(300)
+									.addComponent(checkAllLabel)
+									.addComponent(checkAllBox))
 							.addComponent(axiomPanel))
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 								.addComponent(addLabel)
 								.addComponent(buttonAdd)
 								.addComponent(buttonRemove)
 								.addComponent(buttonExport)
-								.addComponent(checkAllLabel)
-								.addComponent(checkAllBox)
 						));
 
 		layout.setVerticalGroup(
 				layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup()
-								.addComponent(hypoLabel)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+										.addComponent(hypoLabel)
+										.addComponent(checkAllLabel)
+										.addComponent(checkAllBox))
 								.addComponent(axiomPanel))
 						.addGroup(layout.createSequentialGroup()
 								.addComponent(addLabel)
 								.addComponent(buttonAdd)
 								.addComponent(buttonRemove)
 								.addComponent(buttonExport)
-								.addComponent(checkAllLabel)
-								.addComponent(checkAllBox)
 						));
 
 		add(step45Panel);
