@@ -12,7 +12,6 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.DecimalFormat;
@@ -33,7 +32,7 @@ public class OWLHypothesesView extends JTable {
         SUPPORT("Support"),
         ASSUMPTION("Assumption"),
         CONFIDENCE("Confidence"),
-        CHECK("Check");
+        CHECK("Accept");
 
         private String name;
 
@@ -58,19 +57,18 @@ public class OWLHypothesesView extends JTable {
             SUPPORT.getName(), ASSUMPTION.getName(), CONFIDENCE.getName(),
             CHECK.getName()
     };
-    private final OWLModelManager owlModelManager;
-    private final OWLSelectionModel owlSelectionModel;
-    private final OWLEditorKit editorKit;
+    private OWLModelManager owlModelManager;
+    private OWLSelectionModel owlSelectionModel;
+    private OWLEditorKit editorKit;
     private TableColumnManager tableColumnManager;
-    private int currentfontsize = 14;
     private Collection<Hypothesis> hypotheses = null;
     private Set<OWLAxiom> axioms;
 
     public OWLHypothesesView(OWLModelManager owlModelManager, OWLSelectionModel owlSelectionModel,
-                                 OWLEditorKit editorkit) {
+                                 OWLEditorKit editorKit) {
         this.owlModelManager = owlModelManager;
         this.owlSelectionModel = owlSelectionModel;
-        this.editorKit = editorkit;
+        this.editorKit = editorKit;
 
         setColumnModel(tableColumnModel);
         setModel(tableModel);
@@ -93,11 +91,15 @@ public class OWLHypothesesView extends JTable {
     public class SetHypothesesTask extends SwingWorker<Void, Void> {
 
         Collection<Hypothesis> hypothesesToSet;
+        MouseListener listener;
+
         Object[][] data;
         DecimalFormat df = new DecimalFormat();
 
-        public SetHypothesesTask(Collection<Hypothesis> hypothesesToSet) {
+        public SetHypothesesTask(Collection<Hypothesis> hypothesesToSet,
+                                 MouseListener listener) {
             this.hypothesesToSet = hypothesesToSet;
+            this.listener = listener;
         }
 
         @Override
@@ -108,6 +110,9 @@ public class OWLHypothesesView extends JTable {
             int length = Integer.toString(hypothesesToSet.size()).length();
             for (Hypothesis h : hypothesesToSet) {
                 JCheckBox checkBox = new JCheckBox();
+                checkBox.setEnabled(true);
+                checkBox.setSelected(false);
+                checkBox.addMouseListener(listener);
                 Object[] row = new Object[] {
                         getString(++id, length),
                         h.getFirstClassAxiom(),
@@ -159,9 +164,8 @@ public class OWLHypothesesView extends JTable {
 
             TableColumn checkColumn = model.getColumn(model.getColumnIndex(CHECK.getName()));
             checkColumn.setCellRenderer(new OWLHypothesesView.AxiomCheckRenderer());
-            checkColumn.setMinWidth(50);
-            checkColumn.setMaxWidth(60);
-
+            checkColumn.setMinWidth(70);
+            checkColumn.setMaxWidth(80);
 
             revalidate();
             repaint();
@@ -189,7 +193,7 @@ public class OWLHypothesesView extends JTable {
     public void setHypotheses(Collection<Hypothesis> hypotheses) {
         this.hypotheses = hypotheses;
         setAxioms();
-        SetHypothesesTask task = new SetHypothesesTask(hypotheses);
+        SetHypothesesTask task = new SetHypothesesTask(hypotheses, this.getMouseListeners()[0]);
         task.execute();
     }
 
@@ -216,23 +220,13 @@ public class OWLHypothesesView extends JTable {
     }
 
 
-    public void clear() {
-        tableModel = new DefaultTableModel();
-        tableModel.setColumnIdentifiers(columns);
-        setAutoCreateRowSorter(true);
-        this.setModel(tableModel);
-        getRowSorter().toggleSortOrder(0);
-        repaint();
-    }
-
-
-    private class AxiomCheckRenderer extends JCheckBox implements TableCellRenderer {
+   private class AxiomCheckRenderer extends JCheckBox implements TableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
-            this.setEnabled(true);
-            this.setSelected(true);
+            JCheckBox checkBox = (JCheckBox) value;
+            this.setSelected(checkBox.isSelected());
             return this;
         }
 
@@ -297,25 +291,6 @@ public class OWLHypothesesView extends JTable {
     }
 
 
-
-    public void resetFontSize() {
-        currentfontsize = 14;
-        setFont(new Font("Serif", Font.BOLD, currentfontsize));
-        repaint();
-    }
-
-    public void decreaseFontSize() {
-        currentfontsize--;
-        setFont(new Font("Serif", Font.BOLD, currentfontsize));
-        repaint();
-    }
-
-    public void increaseFontSize() {
-        currentfontsize++;
-        setFont(new Font("Serif", Font.BOLD, currentfontsize));
-        repaint();
-    }
-
     private void createMouseListener() {
         this.addMouseListener(new MouseListener() {
 
@@ -326,7 +301,15 @@ public class OWLHypothesesView extends JTable {
 
             @Override
             public void mousePressed(MouseEvent e) {
-
+                int selectedRow = convertRowIndexToModel(getSelectedRow());
+                JCheckBox checkBox = (JCheckBox) getModel().getValueAt(
+                        selectedRow, getColumnModel().getColumnIndex(CHECK.getName()));
+                if (checkBox.isSelected()) {
+                    checkBox.setSelected(false);
+                } else {
+                    checkBox.setSelected(true);
+                }
+                repaint();
             }
 
             @Override
@@ -341,26 +324,41 @@ public class OWLHypothesesView extends JTable {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                int selectedRow = convertRowIndexToModel(getSelectedRow());
-                JCheckBox checkBox = (JCheckBox) getModel().getValueAt(
-                        selectedRow, getColumnModel().getColumnIndex(CHECK.getName()));
-                checkBox.setSelected(false);
+
             }
         });
     }
 
-    public void sortColumn(String string) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                getRowSorter().toggleSortOrder(getColumnModel().getColumnIndex(string));
-            }
-        });
-
-    }
 
     public Set<OWLAxiom> getAxioms() {
         return axioms;
     }
+
+
+    public Set<OWLAxiom> getSelectedAxioms() {
+        Set<OWLAxiom> selAxioms = new HashSet<>();
+        int rowCount = getModel().getRowCount();
+        for (int row=0; row<rowCount; row++) {
+            JCheckBox checkBox = (JCheckBox) getModel().getValueAt(
+                    row, getColumnModel().getColumnIndex(CHECK.getName()));
+            if (checkBox.isSelected()) {
+                OWLAxiom axiom = (OWLAxiom) getModel().getValueAt(
+                        row, getColumnModel().getColumnIndex(HYPOTHESES.getName()));
+                selAxioms.add(axiom);
+            }
+        }
+        return selAxioms;
+    }
+
+
+    public void setAllCheckboxes(boolean value) {
+        int rowCount = getModel().getRowCount();
+        for (int row=0; row<rowCount; row++) {
+            JCheckBox checkBox = (JCheckBox) getModel().getValueAt(
+                    row, getColumnModel().getColumnIndex(CHECK.getName()));
+            checkBox.setSelected(value);
+        }
+        repaint();
+    }
+
 }

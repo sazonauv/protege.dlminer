@@ -38,6 +38,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	JButton buttonExport = null;
 	JButton buttonAdd = null;
 	JButton buttonRemove = null;
+	JCheckBox checkAllBox = null;
 
 	// hypotheses view
 	OWLHypothesesView hypothesesTable = null;
@@ -52,32 +53,33 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 		createHypothesesView();
 
-		createButtonsView();
-
 		log.info("DL-Miner view is initialized");
 
 	}
 
 	private void createParametersView() {
-		JPanel inputPanel = new JPanel();
+
+		Font defFont = this.getFont();
+		Font boldFont = new Font(defFont.getFontName(), Font.BOLD, defFont.getSize());
 
 		JPanel step123Panel = new JPanel();
-        step123Panel.setLayout(new GridLayout(2, 3));
+		GroupLayout layout = new GroupLayout(step123Panel);
+        step123Panel.setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
 
         JLabel  chooseParamsLabel= new JLabel("Step 1: Choose parameters", JLabel.LEFT);
-        chooseParamsLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
-        step123Panel.add(chooseParamsLabel);
+        chooseParamsLabel.setFont(boldFont);
 
-        JLabel  chooseFocusLabel= new JLabel("Step 2: Choose focus terms", JLabel.LEFT);
-        chooseFocusLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
-        step123Panel.add(chooseFocusLabel);
+        JLabel  chooseFocusLabel= new JLabel("Step 2: Choose focus terms (optional)", JLabel.LEFT);
+        chooseFocusLabel.setFont(boldFont);
 
         JLabel  runLabel= new JLabel("Step 3: Run DL-Miner", JLabel.LEFT);
-        runLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
-        step123Panel.add(runLabel);
+        runLabel.setFont(boldFont);
 
 		JPanel paramPanel = new JPanel();
 		paramPanel.setLayout(new GridLayout(4, 2));
+		paramPanel.setPreferredSize(new Dimension(200, 200));
 
 		final int defTextFieldSize = 7;
 
@@ -101,26 +103,55 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		minPrecisionField = new JTextField("0.9", defTextFieldSize);
 		paramPanel.add(minPrecisionField);
 
-        step123Panel.add(paramPanel);
-
 		entityPanel = new OWLEntitySelectorPanel(getOWLEditorKit(), true);
 		entityPanel.setPreferredSize(new Dimension(500, 300));
 
-        step123Panel.add(entityPanel);
-
-
-        buttonRun = new JButton("run");
-        buttonRun.setFont(new Font("Helvetica", Font.BOLD, 20));
+        buttonRun = new JButton("RUN");
+        buttonRun.setFont(boldFont);
+		buttonRun.setMinimumSize(new Dimension(200, 50));
         buttonRun.addActionListener(this);
 
-        step123Panel.add(buttonRun);
+		layout.setHorizontalGroup(
+				layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+								.addComponent(chooseParamsLabel)
+								.addComponent(paramPanel)
+								.addComponent(runLabel)
+								.addComponent(buttonRun))
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+								.addComponent(chooseFocusLabel)
+								.addComponent(entityPanel))
 
-        inputPanel.add(step123Panel);
+		);
 
-		add(inputPanel);
+		layout.setVerticalGroup(
+				layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(chooseParamsLabel)
+								.addComponent(paramPanel)
+								.addComponent(runLabel)
+								.addComponent(buttonRun))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(chooseFocusLabel)
+								.addComponent(entityPanel))
+		);
+
+		add(step123Panel);
 	}
 
 	private void createHypothesesView() {
+		JPanel step45Panel = new JPanel();
+		GroupLayout layout = new GroupLayout(step45Panel);
+		step45Panel.setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+
+		Font defFont = this.getFont();
+		Font boldFont = new Font(defFont.getFontName(), Font.BOLD, defFont.getSize());
+
+		JLabel  hypoLabel = new JLabel("Step 4: Explore and select hypotheses", JLabel.LEFT);
+		hypoLabel.setFont(boldFont);
+
 		JPanel axiomPanel = new JPanel();
 		axiomPanel.setLayout(new GridLayout(1, 1));
 		axiomPanel.setPreferredSize(new Dimension(1000, 400));
@@ -130,35 +161,61 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		hypothesesTable.setHypotheses(new HashSet<>());
 		JScrollPane axiomScrollPanel = new JScrollPane(hypothesesTable);
 		axiomPanel.add(axiomScrollPanel);
-		add(axiomPanel);
-	}
 
+		JLabel  addLabel = new JLabel("Step 5: Add or save hypotheses", JLabel.LEFT);
+		addLabel.setFont(boldFont);
 
-	private void createButtonsView() {
-		JPanel buttonsPanel = new JPanel();
-		buttonsPanel.setLayout(new GridLayout(1, 3));
-		buttonsPanel.setPreferredSize(new Dimension(600, 30));
-
-		buttonAdd = new JButton("add");
-		buttonAdd.setFont(new Font("Helvetica", Font.BOLD, 20));
-		buttonAdd.setPreferredSize(new Dimension(200, 30));
+		buttonAdd = new JButton("ADD");
+		buttonAdd.setFont(boldFont);
+		buttonAdd.setMinimumSize(new Dimension(200, 50));
 		buttonAdd.addActionListener(this);
 
-		buttonRemove = new JButton("remove");
-		buttonRemove.setFont(new Font("Helvetica", Font.BOLD, 20));
-		buttonRemove.setPreferredSize(new Dimension(200, 30));
+		buttonRemove = new JButton("REMOVE");
+		buttonRemove.setFont(boldFont);
+		buttonRemove.setMinimumSize(new Dimension(200, 50));
 		buttonRemove.addActionListener(this);
 
-		buttonExport = new JButton("export");
-		buttonExport.setFont(new Font("Helvetica", Font.BOLD, 20));
-		buttonExport.setPreferredSize(new Dimension(200, 30));
+		buttonExport = new JButton("SAVE");
+		buttonExport.setFont(boldFont);
+		buttonExport.setMinimumSize(new Dimension(200, 50));
 		buttonExport.addActionListener(this);
 
-		buttonsPanel.add(buttonAdd);
-		buttonsPanel.add(buttonRemove);
-		buttonsPanel.add(buttonExport);
+		JLabel checkAllLabel = new JLabel("Select all", JLabel.LEFT);
+		checkAllLabel.setFont(boldFont);
 
-		add(buttonsPanel);
+		checkAllBox = new JCheckBox();
+		checkAllBox.addActionListener(this);
+
+
+		layout.setHorizontalGroup(
+				layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+							.addComponent(hypoLabel)
+							.addComponent(axiomPanel))
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+								.addComponent(addLabel)
+								.addComponent(buttonAdd)
+								.addComponent(buttonRemove)
+								.addComponent(buttonExport)
+								.addComponent(checkAllLabel)
+								.addComponent(checkAllBox)
+						));
+
+		layout.setVerticalGroup(
+				layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(hypoLabel)
+								.addComponent(axiomPanel))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(addLabel)
+								.addComponent(buttonAdd)
+								.addComponent(buttonRemove)
+								.addComponent(buttonExport)
+								.addComponent(checkAllLabel)
+								.addComponent(checkAllBox)
+						));
+
+		add(step45Panel);
 	}
 
 
@@ -182,6 +239,8 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 			addHypotheses();
 		} else if (e.getSource().equals(buttonRemove)) {
 			removeHypotheses();
+		} else if (e.getSource().equals(checkAllBox)) {
+			hypothesesTable.setAllCheckboxes(checkAllBox.isSelected());
 		}
 
 	}
@@ -189,7 +248,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 
 
 	private void addHypotheses() {
-		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAxioms();
+		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getSelectedAxioms();
 		OWLModelManager manager = getOWLModelManager();
 		OWLOntology ontology = manager.getActiveOntology();
 		List<OWLOntologyChange> changes = new ArrayList<>();
@@ -201,7 +260,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 	}
 
 	private void removeHypotheses() {
-		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAxioms();
+		Set<OWLAxiom> selectedHypotheses = hypothesesTable.getSelectedAxioms();
 		OWLModelManager manager = getOWLModelManager();
 		OWLOntology ontology = manager.getActiveOntology();
 		List<OWLOntologyChange> changes = new ArrayList<>();
@@ -219,7 +278,7 @@ public class DLMinerView extends AbstractOWLViewComponent implements ActionListe
 		if (filename == null) {
 			JOptionPane.showMessageDialog(this, "The export is cancelled");
 		} else {
-			Set<OWLAxiom> selectedHypotheses = hypothesesTable.getAxioms();
+			Set<OWLAxiom> selectedHypotheses = hypothesesTable.getSelectedAxioms();
 			if (selectedHypotheses.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Empty output, aborting");
 			} else {
