@@ -9,14 +9,14 @@
 		<version>7</version>
 	</parent>
 
-	<groupId>owl.cs</groupId>
+	<groupId>dlminer.io</groupId>
 	<artifactId>dlminer.protege</artifactId>
-	<version>0.1.0</version>
+	<version>1.0.0</version>
 	<packaging>bundle</packaging>
 
 	<name>DL-Miner Plugin for Protege</name>
 	<description>A tool for generating hypotheses in Protege.</description>
-	<url>https://dlminer.io</url>
+	<url>http://www.cs.man.ac.uk/~sazonauv</url>
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License</name>
